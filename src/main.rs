@@ -1,14 +1,16 @@
-use mini_redis::{client, Result};
+use std::net::TcpListener;
 
-#[tokio::main]
-async fn main()-> Result<()> {
-    let mut client = client::connect("127.0.0.1:6379").await?;
+fn main() {
+    let listener = TcpListener::bind("127.0.0.1:6379").unwrap();
 
-    client.set("hello", "world".into()).await?;
-
-    let result = client.get("hello").await?;
-
-    println!("got value from the server; result={:?}", result);
-
-    Ok(())
+    for stream in listener.incoming() {
+        match stream {
+           Ok(_stream) => {
+               println!("accepted new connection");
+           }
+           Err(e) => {
+               println!("error: {}", e);
+           }
+        }
+    }
 }
