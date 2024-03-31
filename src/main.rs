@@ -1,6 +1,8 @@
+#[allow(unused_imports)]
 use std::{
-    io::{BufRead, BufReader, Write},
+    io::{BufRead, BufReader, Error, ErrorKind, Write},
     net::{TcpListener, TcpStream},
+    process::Command,
 };
 
 fn handle_incoming_connection(mut stream: TcpStream) {
@@ -24,6 +26,19 @@ fn handle_incoming_connection(mut stream: TcpStream) {
             }
         }
     }
+}
+
+/// Run server TCP for run test
+#[test]
+fn test_handle_incoming_connection() {
+    let output = Command::new("sh")
+        .arg("-c")
+        .arg("echo -e 'ping' | redis-cli")
+        .output()
+        .expect("failed to execute process");
+
+    let pong = String::from_utf8(output.stdout).unwrap();
+    assert_eq!(pong, "PONG\n");
 }
 
 fn main() {
